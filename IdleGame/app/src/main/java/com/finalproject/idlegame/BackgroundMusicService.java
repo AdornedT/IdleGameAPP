@@ -1,17 +1,23 @@
 package com.finalproject.idlegame;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 public class BackgroundMusicService extends Service {
 
     private static final float mStartVolume = (float)1.0;
 
+    private static final String TAG = "BackgroundMusicService";
     private static final String RES_LOCALE = "raw";
     private static final String MAIN_SONG_NAME = "main_song";
+    private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
 
     MediaPlayer gameMusic;
 
@@ -24,6 +30,12 @@ public class BackgroundMusicService extends Service {
     public void onCreate(){
         Toast.makeText(this, "Music service created", Toast.LENGTH_SHORT).show();
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(INTENT_MUSIC_PAUSE);
+
+        this.registerReceiver(mReceiver, filter);
+
+        //Get music file ID for MediaPlayer.
         int resID = getResources().getIdentifier(MAIN_SONG_NAME, RES_LOCALE, getPackageName());
         gameMusic = MediaPlayer.create(this, resID);
         gameMusic.setLooping(true);
@@ -32,6 +44,7 @@ public class BackgroundMusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         Toast.makeText(this, "Playing music via service", Toast.LENGTH_LONG).show();
+
         try {
             gameMusic.start();
         } catch (IllegalStateException e) {
@@ -49,5 +62,21 @@ public class BackgroundMusicService extends Service {
         Toast.makeText(this, "Stopping music service", Toast.LENGTH_LONG).show();
 
         gameMusic.stop();
+        //unregisterReceiver(mReceiver);
     }
+
+    private void musicPause(){
+        gameMusic.pause();
+    }
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, action);
+            //if(action.equals(INTENT_MUSIC_PAUSE)){
+            musicPause();
+            //}
+        }
+    };
 }

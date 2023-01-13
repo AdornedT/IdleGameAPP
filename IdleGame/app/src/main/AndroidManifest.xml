@@ -31,6 +31,13 @@
                 android:value="" />
         </activity>
         <service android:name=".BackgroundMusicService" />
+        <receiver android:name=".BackgroundMusicService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.finalproject.idlegame.BackgroundMusicService.PAUSE" />
+                <category android:name="com.finalproject.idlegame.BackgroundMusicService.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

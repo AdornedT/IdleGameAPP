@@ -1,14 +1,14 @@
 package com.finalproject.idlegame;
 
-import android.content.ActivityNotFoundException;
+import android.app.ActivityManager;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.navigation.NavController;
@@ -21,19 +21,17 @@ import com.finalproject.idlegame.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.net.URLConnection;
-
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
-    private Intent mIntent;
+    private static final String TAG = "MainActivity";
+    private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIntent = new Intent(this, BackgroundMusicService.class);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -50,10 +48,25 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                HttpURLConnectionActivity.startSendHttpRequestThread("https://www.globalproductprices.com/USA/mineral_water_prices/#:~:text=The%20price%20is%200.81%20USD.");
-                startService(mIntent);
+                if(isMyServiceRunning(BackgroundMusicService.class)){
+                    Log.d(TAG, "Service is running");
+                }else{
+                    Log.d(TAG, "Service is not running");
+                }
             }
         });
+    }
+
+    // This checks if a service is running, one method is deprecated but still works for local.
+    @SuppressWarnings("deprecation")
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
