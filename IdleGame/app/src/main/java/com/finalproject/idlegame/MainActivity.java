@@ -3,12 +3,14 @@ package com.finalproject.idlegame;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ContentValues;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -21,11 +23,16 @@ import com.finalproject.idlegame.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+
+    private static double mMoneyValue;
+    private static double mFactoriesValue;
 
     private static String[] sAllValuesName = new String[]{
             "money",
@@ -34,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
+
+    private static double[] mGameDataDouble;
 
     private static GameContentOps mGameContentOps;
 
@@ -52,24 +61,34 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         mGameContentOps = new GameContentOps(this);
+
+        //try {
+        //    mGameContentOps.deleteByName(sAllValuesName);
+        //} catch (RemoteException e) {
+        //    e.printStackTrace();
+        //}
+
+        //This checks if there is data already, if there is this part is ignored.
         try {
-            mGameContentOps.insertHelper("money", "a");
-            mGameContentOps.insertHelper("factories", "b");
+            if(!mGameContentOps.areThereValuesInTable(sAllValuesName)){
+                Log.d(TAG, "New game detected.");
+                mGameContentOps.insertHelper("money", 9);
+                mGameContentOps.insertHelper("factories", 10);
+            }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 
+        //Collects data from the table so that it remembers your game even when you close the app.
         try {
-            mGameContentOps.getValueFromTable(sAllValuesName);
+            mGameDataDouble = mGameContentOps.getValueFromTable(sAllValuesName);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 
-        try {
-            mGameContentOps.deleteByName(sAllValuesName);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        mMoneyValue = mGameDataDouble[0];
+        mFactoriesValue = mGameDataDouble[1];
+        Log.d(TAG, "money found: " +mMoneyValue+ " factories found: " +mFactoriesValue);
 
         /**binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // This checks if a service is running, one method is deprecated but still works for local.
+    // This checks if a service is running, one method is deprecated but still works for local services.
     @SuppressWarnings("deprecation")
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
@@ -131,7 +150,36 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+    }
+
+    public double getMoneyValue(){
+        return mMoneyValue;
+    }
+
+    public double getFactoriesValue(){
+        return mFactoriesValue;
+    }
+
+    public void saveGame(Double moneyValue, Double factoriesValue){
+        try {
+            Toast.makeText(this, "Game saving...", Toast.LENGTH_SHORT).show();
+            mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "money", moneyValue.intValue());
+            mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "factories", factoriesValue.intValue());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this, "Game saved", Toast.LENGTH_SHORT).show();
+        }
     }
 }

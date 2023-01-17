@@ -3,8 +3,10 @@ package com.finalproject.idlegame;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -57,7 +59,7 @@ public class GameContentOps {
      * the HobbitContentProvider.
      */
     public Uri insertHelper(String dataName,
-                      String value) throws RemoteException {
+                      int value) throws RemoteException {
         final ContentValues cvs = new ContentValues();
 
         // Insert data.
@@ -144,13 +146,11 @@ public class GameContentOps {
      */
     public int updateByUri(Uri uri,
                            String name,
-                           String race) throws RemoteException {
+                           int value) throws RemoteException {
         // Initialize the content values.
         final ContentValues cvs = new ContentValues();
-        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME,
-                name);
-        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE,
-                race);
+        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME, name);
+        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE, value);
 
         // Update the content at the designated URI.
         return update(uri,
@@ -188,6 +188,8 @@ public class GameContentOps {
                       ContentValues cvs,
                       String selection,
                       String[] selectionArgs) {
+
+
         return mCr.update(uri,
                 cvs,
                 selection,
@@ -236,8 +238,7 @@ public class GameContentOps {
                 null);
     }
 
-    public void getValueFromTable(String[] nameOfValues)
-            throws RemoteException {
+    public boolean areThereValuesInTable(String[] nameOfValues) throws RemoteException{
         // Query for all characters in the HobbitContentProvider by their race.
         mCursor = query(GameDatabaseHelper.GameEntry.CONTENT_URI,
                 GameDatabaseHelper.GameEntry.sColumnsToDisplay,
@@ -245,19 +246,39 @@ public class GameContentOps {
                 nameOfValues,
                 null);
 
-        int t = mCursor.getCount();
+        //If this is true the game data is already at the SQL table.
+        if(mCursor.getCount() > 0){
+            Log.d(TAG, "Values found");
+            return true;
+        }
+        return false;
+    }
+
+    public double[] getValueFromTable(String[] nameOfValues) throws RemoteException {
+        // Query for all characters in the HobbitContentProvider by their race.
+        mCursor = query(GameDatabaseHelper.GameEntry.CONTENT_URI,
+                GameDatabaseHelper.GameEntry.sColumnsToDisplay,
+                GameDatabaseHelper.GameEntry.COLUMN_NAME,
+                nameOfValues,
+                null);
+
+        int walker = 0;
+        //{money, factories}
+        double[] gameDataDouble = {9.0, 9.0};
 
         if (mCursor != null ) {
-            Log.e(TAG, "Cursor not null");
-            Log.e(TAG, "" + mCursor.moveToFirst());
-            Log.e(TAG, "" + mCursor.getCount());
             if  (mCursor.moveToFirst()) {
                 do {
-                    @SuppressLint("Range") String age = mCursor.getString(mCursor.getColumnIndex("value"));
-                    Log.d(TAG, "TESTING VALUES: "+age);
+                    @SuppressLint("Range") int auxValue = mCursor.getInt(mCursor.getColumnIndex("value"));
+                    Log.d(TAG, "TESTING VALUES: " +auxValue+ " index id: " + mCursor.getColumnIndex("value"));
+                    gameDataDouble[walker] = (double)auxValue;
+                    walker++;
                 }while (mCursor.moveToNext());
             }
         }
-
+        for (double aux: gameDataDouble) {
+            Log.d(TAG, "double: " + aux);
+        }
+        return gameDataDouble;
     }
 }

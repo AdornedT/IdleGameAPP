@@ -55,7 +55,7 @@ public class GameDatabaseHelper extends SQLiteOpenHelper {
                     + TABLE_NAME + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY, "
                     + GameDatabaseHelper.GameEntry.COLUMN_NAME + " TEXT NOT NULL, "
-                    + GameDatabaseHelper.GameEntry.COLUMN_VALUE + " TEXT NOT NULL "
+                    + GameDatabaseHelper.GameEntry.COLUMN_VALUE + " INTEGER NOT NULL "
                     + " );";
 
     /**

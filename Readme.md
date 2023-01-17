@@ -28,7 +28,7 @@ In the UI of the main game loop you will find a play and pause button for the mu
 
 ### ContentProvider
 
-This will be used so that the main game loop screen knows what the price for bottled water, the price for the bottled water is collected online in dollars via an url request, what upgrades and how many factories the player has.
+This is used to share game data across all fragments. For example the upgrade screen and main game loop screen both need to know how much money you have.
 
 
 ### Web service
