@@ -1,15 +1,16 @@
 package com.finalproject.idlegame;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.content.Intent;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.RemoteException;
 import android.util.Log;
-import android.view.View;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -26,9 +27,17 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
+    private static String[] sAllValuesName = new String[]{
+            "money",
+            "factories"
+    };
+
     private static final String TAG = "MainActivity";
     private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
 
+    private static GameContentOps mGameContentOps;
+
+    @SuppressLint("Range")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +51,27 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        mGameContentOps = new GameContentOps(this);
+        try {
+            mGameContentOps.insertHelper("money", "a");
+            mGameContentOps.insertHelper("factories", "b");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            mGameContentOps.getValueFromTable(sAllValuesName);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            mGameContentOps.deleteByName(sAllValuesName);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        /**binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -54,7 +83,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Service is not running");
                 }
             }
-        });
+        }); **/
+    }
+
+    public static void testingContentTableGet(){
+        try {
+            mGameContentOps.getValueFromTable(sAllValuesName);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     // This checks if a service is running, one method is deprecated but still works for local.

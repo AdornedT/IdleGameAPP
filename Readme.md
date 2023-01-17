@@ -18,6 +18,8 @@ A separete menu will be created for upgrades and to purchase water bottle factor
 
 There will be a button in the main game screen that buys a water bottle factory, this buttton will send an intent to the upgrade screen for a quick buy so that the user does not require to change screens.
 
+The Pause button for the music uses sends an intent to a BroadcastReceiver in the BackGroundMusicService.
+
 ### Service
 
 A background service will be created to play music while you play the game.

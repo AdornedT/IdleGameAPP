@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -20,6 +21,8 @@ public class FirstFragment extends Fragment {
 
     private static final String TAG = "FirstFragment";
     private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
+
+    private static Double mMoneyValue = 0.0;
 
     @Override
     public View onCreateView(
@@ -36,7 +39,7 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         //Should be removed at some point
-        binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
+        binding.buttonUpgrades.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 NavHostFragment.findNavController(FirstFragment.this)
@@ -66,8 +69,24 @@ public class FirstFragment extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
+                MainActivity.testingContentTableGet();
             }
         });
+
+        //Bottle Water button
+        binding.buttonBottleWater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMoneyValue++;
+                changeMoneyText();
+            }
+        });
+    }
+
+    public void changeMoneyText(){
+        final TextView money_num_txt = (TextView) getView().findViewById(R.id.textView_moneyValue);
+        money_num_txt.setText(mMoneyValue.toString());
     }
 
     @Override

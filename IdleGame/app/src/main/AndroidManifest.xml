@@ -38,6 +38,11 @@
                 <category android:name="com.finalproject.idlegame.BackgroundMusicService.category.DEFAULT" />
             </intent-filter>
         </receiver>
+        <provider
+            android:name=".GameContentProvider"
+            android:authorities="com.finalproject.idlegame.gamecontentprovider"
+            android:exported="false">
+        </provider>
     </application>
 
 </manifest>
