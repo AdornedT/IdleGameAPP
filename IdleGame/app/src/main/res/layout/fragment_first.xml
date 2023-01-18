@@ -150,15 +150,14 @@
 
     <Button
         android:id="@+id/button_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="95dp"
+        android:layout_height="45dp"
         android:text="Save"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/button_start"
+        app:layout_constraintBottom_toTopOf="@+id/button_bottleWater"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.789" />
+        app:layout_constraintVertical_bias="0.856" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

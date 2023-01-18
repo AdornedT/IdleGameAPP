@@ -247,6 +247,7 @@ public class GameContentOps {
                 null);
 
         //If this is true the game data is already at the SQL table.
+        Log.d(TAG, "Count table: " + mCursor.getCount());
         if(mCursor.getCount() > 0){
             Log.d(TAG, "Values found");
             return true;
@@ -263,8 +264,8 @@ public class GameContentOps {
                 null);
 
         int walker = 0;
-        //{money, factories}
-        double[] gameDataDouble = {9.0, 9.0};
+        //{money, factories, currentFactoryCost}
+        double[] gameDataDouble = {8.0, 9.0, 10.0};
 
         if (mCursor != null ) {
             if  (mCursor.moveToFirst()) {

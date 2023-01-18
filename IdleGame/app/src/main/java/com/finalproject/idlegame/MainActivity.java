@@ -33,10 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static double mMoneyValue;
     private static double mFactoriesValue;
+    private static double mFactoriesCurrentCost;
 
     private static String[] sAllValuesName = new String[]{
             "money",
-            "factories"
+            "factories",
+            "factories_current_cost"
     };
 
     private static final String TAG = "MainActivity";
@@ -72,8 +74,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             if(!mGameContentOps.areThereValuesInTable(sAllValuesName)){
                 Log.d(TAG, "New game detected.");
-                mGameContentOps.insertHelper("money", 9);
-                mGameContentOps.insertHelper("factories", 10);
+                mGameContentOps.insertHelper("money", 0);
+                mGameContentOps.insertHelper("factories", 0);
+                mGameContentOps.insertHelper("factories_current_cost", 10);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -88,7 +91,10 @@ public class MainActivity extends AppCompatActivity {
 
         mMoneyValue = mGameDataDouble[0];
         mFactoriesValue = mGameDataDouble[1];
-        Log.d(TAG, "money found: " +mMoneyValue+ " factories found: " +mFactoriesValue);
+        mFactoriesCurrentCost = mGameDataDouble[2];
+        for (double aux: mGameDataDouble) {
+            Log.d(TAG, "double: " + aux);
+        }
 
         /**binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,25 +167,48 @@ public class MainActivity extends AppCompatActivity {
         return mFactoriesValue;
     }
 
-    public void saveGame(Double moneyValue, Double factoriesValue){
+    public double getFactoriesCurrentCost(){
+        return mFactoriesCurrentCost;
+    }
+
+    class SaveThread extends Thread{
+        private Double mMoneyValue;
+        private Double mFactoriesValue;
+        private Double mFactoriesCurrentCost;
+
+        SaveThread(Double moneyValue, Double factoriesValue, Double factoriesCurrentCost){
+            this.mMoneyValue = moneyValue;
+            this.mFactoriesValue = factoriesValue;
+            this.mFactoriesCurrentCost = factoriesCurrentCost;
+        }
+
+        @Override
+        public void run(){
+            saveGame(mMoneyValue, mFactoriesValue, mFactoriesCurrentCost);
+        }
+    }
+
+    public void saveGameThread(Double moneyValue, Double factoriesValue, Double factoriesCurrentCost){
+        Toast.makeText(this, "Game saving...", Toast.LENGTH_SHORT).show();
+        SaveThread save = new SaveThread(moneyValue, factoriesValue, factoriesCurrentCost);
+        new Thread(save).start();
+        while(save.isAlive()){
+            //waiting...
+        }
+        Toast.makeText(this, "Game saved", Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveGame(Double moneyValue, Double factoriesValue, Double factoriesCurrentCost){
         try {
-            Toast.makeText(this, "Game saving...", Toast.LENGTH_SHORT).show();
             mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "money", moneyValue.intValue());
             mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "factories", factoriesValue.intValue());
+            mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "factories_current_cost", factoriesCurrentCost.intValue());
         } catch (RemoteException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            try {
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Toast.makeText(this, "Game saved", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void toastMessages(String message){
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

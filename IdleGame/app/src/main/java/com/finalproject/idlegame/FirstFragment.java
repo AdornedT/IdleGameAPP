@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -27,6 +28,8 @@ public class FirstFragment extends Fragment {
 
     private static Double mMoneyValue = 0.0;
     private static Double mFactoriesValue = 0.0;
+    private static Double mFactoryCurrentCost = 10.0;
+    private static Double mFactoryIncreaseCost = 10.0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,7 +80,7 @@ public class FirstFragment extends Fragment {
         binding.buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).saveGame(mMoneyValue, mFactoriesValue);
+                ((MainActivity)getActivity()).saveGameThread(mMoneyValue, mFactoriesValue, mFactoryCurrentCost);
             }
         });
 
@@ -94,7 +97,15 @@ public class FirstFragment extends Fragment {
         binding.buttonBuyFactory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mFactoriesValue++;
+                if(mMoneyValue >= mFactoryCurrentCost){
+                    mMoneyValue -= mFactoryCurrentCost;
+                    mFactoryCurrentCost = mFactoryCurrentCost + mFactoryIncreaseCost;
+                    mFactoriesValue++;
+                    changeMoneyText();
+                }
+                else{
+                    ((MainActivity)getActivity()).toastMessages("Not enough money");
+                }
                 changeFactoriesText();
             }
         });
@@ -105,7 +116,9 @@ public class FirstFragment extends Fragment {
             public void onClick(View view) {
                 mMoneyValue = ((MainActivity)getActivity()).getMoneyValue();
                 mFactoriesValue = ((MainActivity)getActivity()).getFactoriesValue();
-                Log.d(TAG, "money found: " +mMoneyValue+ " factories found: " +mFactoriesValue);
+                mFactoryCurrentCost = ((MainActivity)getActivity()).getFactoriesCurrentCost();
+                Log.d(TAG, "money found: " +mMoneyValue+ " factories found: " +mFactoriesValue+
+                        " current factory cost: " +mFactoryCurrentCost);
                 changeMoneyText();
                 changeFactoriesText();
 
