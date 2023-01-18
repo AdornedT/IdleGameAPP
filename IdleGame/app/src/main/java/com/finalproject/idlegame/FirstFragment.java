@@ -80,7 +80,7 @@ public class FirstFragment extends Fragment {
         binding.buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).saveGameThread(mMoneyValue, mFactoriesValue, mFactoryCurrentCost);
+                ((MainActivity)getActivity()).saveGameThread(mMoneyValue, mFactoriesValue);
             }
         });
 

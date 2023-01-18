@@ -164,14 +164,14 @@ public class GameContentOps {
      *
      * @a name in the HobbitContentProvider.
      */
-    public int updateRaceByName(String name,
-                                String race) throws RemoteException {
+    public int updateValueByName(String name,
+                                int value) throws RemoteException {
         // Initialize the content values.
         final ContentValues cvs = new ContentValues();
         cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME,
                 name);
         cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE,
-                race);
+                value);
 
         // Update the content at the designated URI.
         return update(GameDatabaseHelper.GameEntry.CONTENT_URI,
@@ -249,7 +249,7 @@ public class GameContentOps {
         //If this is true the game data is already at the SQL table.
         Log.d(TAG, "Count table: " + mCursor.getCount());
         if(mCursor.getCount() > 0){
-            Log.d(TAG, "Values found");
+            Log.d(TAG, "Old game found");
             return true;
         }
         return false;
@@ -264,13 +264,15 @@ public class GameContentOps {
                 null);
 
         int walker = 0;
-        //{money, factories, currentFactoryCost}
-        double[] gameDataDouble = {8.0, 9.0, 10.0};
+        //{money, factories}
+        //Starting values just for debugging purposes.
+        double[] gameDataDouble = {8.0, 9.0};
 
         if (mCursor != null ) {
             if  (mCursor.moveToFirst()) {
                 do {
-                    @SuppressLint("Range") int auxValue = mCursor.getInt(mCursor.getColumnIndex("value"));
+                    int test = mCursor.getColumnIndex("value");
+                    @SuppressLint("Range") int auxValue = mCursor.getInt(test);
                     Log.d(TAG, "TESTING VALUES: " +auxValue+ " index id: " + mCursor.getColumnIndex("value"));
                     gameDataDouble[walker] = (double)auxValue;
                     walker++;

@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "New game detected.");
                 mGameContentOps.insertHelper("money", 0);
                 mGameContentOps.insertHelper("factories", 0);
-                mGameContentOps.insertHelper("factories_current_cost", 10);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         mMoneyValue = mGameDataDouble[0];
         mFactoriesValue = mGameDataDouble[1];
-        mFactoriesCurrentCost = mGameDataDouble[2];
+        mFactoriesCurrentCost = mFactoriesValue*10 + 10;
         for (double aux: mGameDataDouble) {
             Log.d(TAG, "double: " + aux);
         }
@@ -174,23 +173,21 @@ public class MainActivity extends AppCompatActivity {
     class SaveThread extends Thread{
         private Double mMoneyValue;
         private Double mFactoriesValue;
-        private Double mFactoriesCurrentCost;
 
-        SaveThread(Double moneyValue, Double factoriesValue, Double factoriesCurrentCost){
+        SaveThread(Double moneyValue, Double factoriesValue){
             this.mMoneyValue = moneyValue;
             this.mFactoriesValue = factoriesValue;
-            this.mFactoriesCurrentCost = factoriesCurrentCost;
         }
 
         @Override
         public void run(){
-            saveGame(mMoneyValue, mFactoriesValue, mFactoriesCurrentCost);
+            saveGame(mMoneyValue, mFactoriesValue);
         }
     }
 
-    public void saveGameThread(Double moneyValue, Double factoriesValue, Double factoriesCurrentCost){
-        Toast.makeText(this, "Game saving...", Toast.LENGTH_SHORT).show();
-        SaveThread save = new SaveThread(moneyValue, factoriesValue, factoriesCurrentCost);
+    public void saveGameThread(Double moneyValue, Double factoriesValue){
+        Toast.makeText(this, "Saving...", Toast.LENGTH_SHORT).show();
+        SaveThread save = new SaveThread(moneyValue, factoriesValue);
         new Thread(save).start();
         while(save.isAlive()){
             //waiting...
@@ -198,11 +195,10 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Game saved", Toast.LENGTH_SHORT).show();
     }
 
-    private void saveGame(Double moneyValue, Double factoriesValue, Double factoriesCurrentCost){
+    private void saveGame(Double moneyValue, Double factoriesValue){
         try {
-            mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "money", moneyValue.intValue());
-            mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "factories", factoriesValue.intValue());
-            mGameContentOps.updateByUri(GameDatabaseHelper.GameEntry.CONTENT_URI, "factories_current_cost", factoriesCurrentCost.intValue());
+            mGameContentOps.updateValueByName("money", moneyValue.intValue());
+            mGameContentOps.updateValueByName("factories", factoriesValue.intValue());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
