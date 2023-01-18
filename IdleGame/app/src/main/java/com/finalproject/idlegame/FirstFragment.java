@@ -43,13 +43,13 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         //Should be removed at some point
-        binding.buttonUpgrades.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-            }
-        });
+        //binding.buttonUpgrades.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View view) {
+        //        NavHostFragment.findNavController(FirstFragment.this)
+        //                .navigate(R.id.action_FirstFragment_to_SecondFragment);
+        //    }
+        //});
 
         //Play music button
         binding.buttonMusicPlay.setOnClickListener(new View.OnClickListener() {
@@ -149,6 +149,124 @@ public class FirstFragment extends Fragment {
                 money_value_text.setVisibility(View.VISIBLE);
                 factories_text.setVisibility(View.VISIBLE);
                 factories_value_text.setVisibility(View.VISIBLE);
+            }
+        });
+
+        //Upgrades button
+        binding.buttonUpgrades.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeMoneyText();
+                changeFactoriesText();
+
+                //Main game screen
+                final TextView bottle_water_button = (TextView) getView().findViewById(R.id.button_bottleWater);
+                final TextView music_play_button = (TextView) getView().findViewById(R.id.button_musicPlay);
+                final TextView music_pause_button = (TextView) getView().findViewById(R.id.button_musicPause);
+                final TextView buy_factories_button = (TextView) getView().findViewById(R.id.button_buyFactory);
+                final TextView upgrades_button = (TextView) getView().findViewById(R.id.button_upgrades);
+                final TextView save_button = (TextView) getView().findViewById(R.id.button_save);
+
+                bottle_water_button.setVisibility(View.GONE);
+                music_play_button.setVisibility(View.GONE);
+                music_pause_button.setVisibility(View.GONE);
+                buy_factories_button.setVisibility(View.GONE);
+                upgrades_button.setVisibility(View.GONE);
+                save_button.setVisibility(View.GONE);
+
+                final TextView music_text = (TextView) getView().findViewById(R.id.text_music);
+                final TextView money_text = (TextView) getView().findViewById(R.id.textView_money);
+                final TextView money_value_text = (TextView) getView().findViewById(R.id.textView_moneyValue);
+                final TextView factories_text = (TextView) getView().findViewById(R.id.textView_factories);
+                final TextView factories_value_text = (TextView) getView().findViewById(R.id.textView_factoriesNumber);
+
+                music_text.setVisibility(View.GONE);
+                money_text.setVisibility(View.GONE);
+                money_value_text.setVisibility(View.GONE);
+                factories_text.setVisibility(View.GONE);
+                factories_value_text.setVisibility(View.GONE);
+
+                //Upgrade screen
+                final TextView buy_factory_upgrades_button = (TextView) getView().findViewById(R.id.button_buyFactory_upgrade);
+                final TextView mountain_water_button = (TextView) getView().findViewById(R.id.button_mountainWater_upgrade);
+                final TextView spicy_water_button = (TextView) getView().findViewById(R.id.button_spicyWater_upgrade);
+                final TextView divine_water_button = (TextView) getView().findViewById(R.id.button_divineWater_upgrade);
+                final TextView back_button = (TextView) getView().findViewById(R.id.button_back);
+
+                buy_factory_upgrades_button.setVisibility(View.VISIBLE);
+                mountain_water_button.setVisibility(View.VISIBLE);
+                spicy_water_button.setVisibility(View.VISIBLE);
+                divine_water_button.setVisibility(View.VISIBLE);
+                back_button.setVisibility(View.VISIBLE);
+
+                final TextView money_text_upgrade = (TextView) getView().findViewById(R.id.textView_money_upgrade);
+                final TextView money_value_upgrade = (TextView) getView().findViewById(R.id.textView_moneyValue_upgrade);
+                final TextView factories_text_upgrade = (TextView) getView().findViewById(R.id.textView_factories_upgrade);
+                final TextView factories_value_upgrade = (TextView) getView().findViewById(R.id.textView_factoriesNumber_upgrade);
+
+                money_text_upgrade.setVisibility(View.VISIBLE);
+                money_value_upgrade.setVisibility(View.VISIBLE);
+                factories_text_upgrade.setVisibility(View.VISIBLE);
+                factories_value_upgrade.setVisibility(View.VISIBLE);
+            }
+        });
+
+        //Upgrades button
+        binding.buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeMoneyText();
+                changeFactoriesText();
+
+                //Main game screen
+                final TextView bottle_water_button = (TextView) getView().findViewById(R.id.button_bottleWater);
+                final TextView music_play_button = (TextView) getView().findViewById(R.id.button_musicPlay);
+                final TextView music_pause_button = (TextView) getView().findViewById(R.id.button_musicPause);
+                final TextView buy_factories_button = (TextView) getView().findViewById(R.id.button_buyFactory);
+                final TextView upgrades_button = (TextView) getView().findViewById(R.id.button_upgrades);
+                final TextView save_button = (TextView) getView().findViewById(R.id.button_save);
+
+                bottle_water_button.setVisibility(View.VISIBLE);
+                music_play_button.setVisibility(View.VISIBLE);
+                music_pause_button.setVisibility(View.VISIBLE);
+                buy_factories_button.setVisibility(View.VISIBLE);
+                upgrades_button.setVisibility(View.VISIBLE);
+                save_button.setVisibility(View.VISIBLE);
+
+                final TextView music_text = (TextView) getView().findViewById(R.id.text_music);
+                final TextView money_text = (TextView) getView().findViewById(R.id.textView_money);
+                final TextView money_value_text = (TextView) getView().findViewById(R.id.textView_moneyValue);
+                final TextView factories_text = (TextView) getView().findViewById(R.id.textView_factories);
+                final TextView factories_value_text = (TextView) getView().findViewById(R.id.textView_factoriesNumber);
+
+                music_text.setVisibility(View.VISIBLE);
+                money_text.setVisibility(View.VISIBLE);
+                money_value_text.setVisibility(View.VISIBLE);
+                factories_text.setVisibility(View.VISIBLE);
+                factories_value_text.setVisibility(View.VISIBLE);
+
+                //Upgrade screen
+                final TextView buy_factory_upgrades_button = (TextView) getView().findViewById(R.id.button_buyFactory_upgrade);
+                final TextView mountain_water_button = (TextView) getView().findViewById(R.id.button_mountainWater_upgrade);
+                final TextView spicy_water_button = (TextView) getView().findViewById(R.id.button_spicyWater_upgrade);
+                final TextView divine_water_button = (TextView) getView().findViewById(R.id.button_divineWater_upgrade);
+                final TextView back_button = (TextView) getView().findViewById(R.id.button_back);
+
+                buy_factory_upgrades_button.setVisibility(View.GONE);
+                mountain_water_button.setVisibility(View.GONE);
+                spicy_water_button.setVisibility(View.GONE);
+                divine_water_button.setVisibility(View.GONE);
+                back_button.setVisibility(View.GONE);
+
+                final TextView money_text_upgrade = (TextView) getView().findViewById(R.id.textView_money_upgrade);
+                final TextView money_value_upgrade = (TextView) getView().findViewById(R.id.textView_moneyValue_upgrade);
+                final TextView factories_text_upgrade = (TextView) getView().findViewById(R.id.textView_factories_upgrade);
+                final TextView factories_value_upgrade = (TextView) getView().findViewById(R.id.textView_factoriesNumber_upgrade);
+
+                money_text_upgrade.setVisibility(View.GONE);
+                money_value_upgrade.setVisibility(View.GONE);
+                factories_text_upgrade.setVisibility(View.GONE);
+                factories_value_upgrade.setVisibility(View.GONE);
             }
         });
     }
