@@ -59,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         mHttpRequester = new HttpURLConnectionActivity();
 
-        mWaterValueHttp = HttpURLConnectionActivity.startSendHttpRequestThread("https://www.globalproductprices.com/USA/mineral_water_prices/#");
-        Log.d(TAG, "Water value: " +mWaterValueHttp);
+        mWaterValueHttp = HttpURLConnectionActivity.startSendHttpRequestThread("https://www.globalproductprices.com/USA/mineral_water_prices/#").split("<")[0];
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        mMoneyValue = mGameDataDouble[0];
+        mMoneyValue = mGameDataDouble[0]/100;
         mFactoriesValue = mGameDataDouble[1];
         mFactoriesCurrentCost = mFactoriesValue*10 + 10;
         mUpgradesBought = mGameDataDouble[2];
@@ -157,6 +156,10 @@ public class MainActivity extends AppCompatActivity {
         return mUpgradesBought;
     }
 
+    public double getWaterValueHttp(){
+        return Double.parseDouble(mWaterValueHttp);
+    }
+
     class SaveThread extends Thread{
         private Double mMoneyValue;
         private Double mFactoriesValue;
@@ -186,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveGame(Double moneyValue, Double factoriesValue, Double upgradesBought){
+        moneyValue *= 100;
         try {
             mGameContentOps.updateValueByName("money", moneyValue.intValue());
             mGameContentOps.updateValueByName("factories", factoriesValue.intValue());

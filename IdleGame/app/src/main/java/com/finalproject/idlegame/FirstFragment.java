@@ -47,15 +47,6 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //Should be removed at some point
-        //binding.buttonUpgrades.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        NavHostFragment.findNavController(FirstFragment.this)
-        //                .navigate(R.id.action_FirstFragment_to_SecondFragment);
-        //    }
-        //});
-
         //Play music button
         binding.buttonMusicPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,11 +123,21 @@ public class FirstFragment extends Fragment {
             }
         });
 
-        //Buy Factory in upgrades button
+        //Reset button
         binding.buttonResetGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((MainActivity)getActivity()).resetGame();
+                mMoneyValue = 0.0;
+                mFactoriesValue = 0.0;
+                mUpgradesBought = 0.0;
+                int i = 0;
+                for (boolean aux: mUpgradeBoughtStatus) {
+                    mUpgradeBoughtStatus[i] = false;
+                    i++;
+                }
+                ChangeMoneyText();
+                ChangeFactoriesText();
             }
         });
 
@@ -216,12 +217,14 @@ public class FirstFragment extends Fragment {
         binding.buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mWaterBottleSellPrice = ((MainActivity)getActivity()).getWaterValueHttp();
                 mMoneyValue = ((MainActivity)getActivity()).getMoneyValue();
                 mFactoriesValue = ((MainActivity)getActivity()).getFactoriesValue();
                 mFactoryCurrentCost = ((MainActivity)getActivity()).getFactoriesCurrentCost();
                 mUpgradesBought = ((MainActivity)getActivity()).getUpgradesPrice();
                 Log.d(TAG, "money found: " +mMoneyValue+ " factories found: " +mFactoriesValue+
-                        " current factory cost: " +mFactoryCurrentCost+ " Upgrades bought status " +mUpgradesBought);
+                        " current factory cost: " +mFactoryCurrentCost+ " Upgrades bought status " +mUpgradesBought+
+                        " water bottle price: " +mWaterBottleSellPrice);
 
                 //Starts game timer to loop every 1 second, used for the factories.
                 startGameTimer();

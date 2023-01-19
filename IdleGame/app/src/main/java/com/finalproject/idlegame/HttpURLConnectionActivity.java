@@ -101,6 +101,11 @@ public class HttpURLConnectionActivity {
         };
         // Start the child thread to request web page.
         sendHttpRequestThread.start();
+        //We wait for the string to be collected.
+        //noinspection StatementWithEmptyBody
+        while(sendHttpRequestThread.isAlive()){
+            //do nothing
+        }
         return mParsedSegments[1];
     }
 }
