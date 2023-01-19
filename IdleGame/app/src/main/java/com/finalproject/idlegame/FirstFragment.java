@@ -425,7 +425,6 @@ public class FirstFragment extends Fragment {
 
                 @Override
                 public void run() {
-                    Log.d(TAG, "Testing timer");
                     FactoriesProfit();
                 }
             });
