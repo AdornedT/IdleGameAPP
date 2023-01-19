@@ -33,7 +33,7 @@ This is used to share game data across all fragments. For example the upgrade sc
 
 ### Web service
 
-I will be making an http request to collect the price of [bottled water in dollars](https://www.globalproductprices.com/USA/mineral_water_prices/#:~:text=The%20price%20is%200.81%20USD.)
+I will be making an http request to collect the price of [bottled water in dollars](https://www.globalproductprices.com/USA/mineral_water_prices/#)
 
 This uses the java.net.HttpURLConnection import.
 

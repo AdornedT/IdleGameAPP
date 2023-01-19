@@ -15,7 +15,9 @@ public class HttpURLConnectionActivity {
     private final static String TAG = "HttpURLConnectionActivity";
     private final static String REQUEST_METHOD_GET = "GET";
 
-    public static void startSendHttpRequestThread(final String reqUrl) {
+    private static String mParsedSegments[];
+
+    public static String startSendHttpRequestThread(final String reqUrl) {
         //Starts thread to make a connection to a webserver so that we can make requests.
         Thread sendHttpRequestThread = new Thread() {
             @Override
@@ -65,7 +67,12 @@ public class HttpURLConnectionActivity {
                         line = bufReader.readLine();
                     }
 
-                    Log.d(TAG, readTextBuf.toString());
+                    Log.d(TAG, "Full string" + readTextBuf.toString());
+                    mParsedSegments = readTextBuf.toString().split(">");
+                    for (String aux : mParsedSegments) {
+                        Log.d(TAG, aux);
+                    }
+
                 } catch (MalformedURLException ex) {
                     Log.e(TAG, ex.getMessage(), ex);
                 } catch (IOException ex) {
@@ -94,5 +101,6 @@ public class HttpURLConnectionActivity {
         };
         // Start the child thread to request web page.
         sendHttpRequestThread.start();
+        return mParsedSegments[1];
     }
 }

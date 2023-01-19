@@ -2,15 +2,10 @@ package com.finalproject.idlegame;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.content.ContentValues;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -23,7 +18,6 @@ import com.finalproject.idlegame.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,15 +25,20 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
+    private static HttpURLConnectionActivity mHttpRequester;
+
     private static double mMoneyValue;
     private static double mFactoriesValue;
     private static double mFactoriesCurrentCost;
+    private static double mUpgradesBought;
 
     private static String[] sAllValuesName = new String[]{
             "money",
             "factories",
-            "factories_current_cost"
+            "bought_upgrades"
     };
+
+    private static String mWaterValueHttp;
 
     private static final String TAG = "MainActivity";
     private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
@@ -58,17 +57,16 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        mHttpRequester = new HttpURLConnectionActivity();
+
+        mWaterValueHttp = HttpURLConnectionActivity.startSendHttpRequestThread("https://www.globalproductprices.com/USA/mineral_water_prices/#");
+        Log.d(TAG, "Water value: " +mWaterValueHttp);
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         mGameContentOps = new GameContentOps(this);
-
-        //try {
-        //    mGameContentOps.deleteByName(sAllValuesName);
-        //} catch (RemoteException e) {
-        //    e.printStackTrace();
-        //}
 
         //This checks if there is data already, if there is this part is ignored.
         try {
@@ -76,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "New game detected.");
                 mGameContentOps.insertHelper("money", 0);
                 mGameContentOps.insertHelper("factories", 0);
+                mGameContentOps.insertHelper("bought_upgrades", 0);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -91,31 +90,15 @@ public class MainActivity extends AppCompatActivity {
         mMoneyValue = mGameDataDouble[0];
         mFactoriesValue = mGameDataDouble[1];
         mFactoriesCurrentCost = mFactoriesValue*10 + 10;
+        mUpgradesBought = mGameDataDouble[2];
         for (double aux: mGameDataDouble) {
             Log.d(TAG, "double: " + aux);
         }
-
-        /**binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                if(isMyServiceRunning(BackgroundMusicService.class)){
-                    Log.d(TAG, "Service is running");
-                }else{
-                    Log.d(TAG, "Service is not running");
-                }
-            }
-        }); **/
     }
 
-    public static void testingContentTableGet(){
-        try {
-            mGameContentOps.getValueFromTable(sAllValuesName);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+    //Resets game
+    public void resetGame(){
+        saveGameThread(0.0, 0.0, 0.0);
     }
 
     // This checks if a service is running, one method is deprecated but still works for local services.
@@ -170,35 +153,43 @@ public class MainActivity extends AppCompatActivity {
         return mFactoriesCurrentCost;
     }
 
+    public double getUpgradesPrice(){
+        return mUpgradesBought;
+    }
+
     class SaveThread extends Thread{
         private Double mMoneyValue;
         private Double mFactoriesValue;
+        private Double mUpgradesBought;
 
-        SaveThread(Double moneyValue, Double factoriesValue){
+        SaveThread(Double moneyValue, Double factoriesValue, Double upgradesBought){
             this.mMoneyValue = moneyValue;
             this.mFactoriesValue = factoriesValue;
+            this.mUpgradesBought = upgradesBought;
         }
 
         @Override
         public void run(){
-            saveGame(mMoneyValue, mFactoriesValue);
+            saveGame(mMoneyValue, mFactoriesValue, mUpgradesBought);
         }
     }
 
-    public void saveGameThread(Double moneyValue, Double factoriesValue){
+    public void saveGameThread(Double moneyValue, Double factoriesValue, Double upgradesBought){
         Toast.makeText(this, "Saving...", Toast.LENGTH_SHORT).show();
-        SaveThread save = new SaveThread(moneyValue, factoriesValue);
+        SaveThread save = new SaveThread(moneyValue, factoriesValue, upgradesBought);
         new Thread(save).start();
+        //This is waiting for the thread to finish
         while(save.isAlive()){
             //waiting...
         }
         Toast.makeText(this, "Game saved", Toast.LENGTH_SHORT).show();
     }
 
-    private void saveGame(Double moneyValue, Double factoriesValue){
+    private void saveGame(Double moneyValue, Double factoriesValue, Double upgradesBought){
         try {
             mGameContentOps.updateValueByName("money", moneyValue.intValue());
             mGameContentOps.updateValueByName("factories", factoriesValue.intValue());
+            mGameContentOps.updateValueByName("bought_upgrades", upgradesBought.intValue());
         } catch (RemoteException e) {
             e.printStackTrace();
         }

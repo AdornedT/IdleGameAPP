@@ -264,9 +264,9 @@ public class GameContentOps {
                 null);
 
         int walker = 0;
-        //{money, factories}
-        //Starting values just for debugging purposes.
-        double[] gameDataDouble = {8.0, 9.0};
+        //{money, factories, upgradesBought}
+        //Starting values are just for debugging purposes.
+        double[] gameDataDouble = {8.0, 9.0, 1.0};
 
         if (mCursor != null ) {
             if  (mCursor.moveToFirst()) {
