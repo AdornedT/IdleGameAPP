@@ -43,4 +43,4 @@ This uses the java.net.HttpURLConnection import.
 As can be seen the UI is simple, there are only two screens one for the main game loop where you can collect money, by cicking "Bottle Water", and see your stats. The second screen is where you can purchase upgrades that increase the value of your bottled water. In both screens you can purchase factories.
 
 ### Class Diagram
-![class diagram](https://github.com/AdornedT/IdleGameAPP/blob/master/game_wire_frame.png)
+![class diagram]([https://github.com/AdornedT/IdleGameAPP/blob/master/game_wire_frame.png](https://github.com/AdornedT/IdleGameAPP/blob/master/class_diagram.png))
