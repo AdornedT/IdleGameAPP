@@ -14,117 +14,61 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 /**
- * Implements a Content Provider used to manage Hobbit characters.
+ * Uses the gitlab project https://gitlab.com/vandy-aad-3/HobbitContentProvider from Vanderbilt University
+ * as the base and was changed to better accommodate this project.
  */
 public class GameContentProvider extends ContentProvider {
-    /**
-     * Debugging tag used by the Android logger.
-     */
+
     protected final static String TAG = "GameContentProvider";
 
-    /**
-     * Use HobbitDatabaseHelper to manage database creation and version
-     * management.
-     */
     private GameDatabaseHelper mOpenHelper;
 
-    /**
-     * Context for the Content Provider.
-     */
     private Context mContext;
 
-    /**
-     * Return true if successfully started.
-     */
     @Override
     public boolean onCreate() {
         mContext = getContext();
-
-        // Select the concrete implementor.
-        // Create the HobbitDatabaseHelper.
         mOpenHelper = new GameDatabaseHelper(mContext);
         return true;
     }
 
-    /**
-     * The code that is returned when a URI for more than 1 items is
-     * matched against the given components.  Must be positive.
-     */
-    public static final int CHARACTERS = 100;
+    public static final int NAME = 100;
 
-    /**
-     * The code that is returned when a URI for exactly 1 item is
-     * matched against the given components.  Must be positive.
-     */
-    public static final int CHARACTER = 101;
+    public static final int NAMES = 101;
 
-    /**
-     * The URI Matcher used by this content provider.
-     */
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
-    /**
-     * Helper method to match each URI to the ACRONYM integers
-     * constant defined above.
-     *
-     * @return UriMatcher
-     */
     protected static UriMatcher buildUriMatcher() {
-        // All paths added to the UriMatcher have a corresponding code
-        // to return when a match is found.  The code passed into the
-        // constructor represents the code to return for the rootURI.
-        // It's common to use NO_MATCH as the code for this case.
-        final UriMatcher matcher =
-                new UriMatcher(UriMatcher.NO_MATCH);
 
-        // For each type of URI that is added, a corresponding code is
-        // created.
-        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY,
-                GameDatabaseHelper.GameEntry.PATH_CHARACTER,
-                CHARACTERS);
-        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY,
-                GameDatabaseHelper.GameEntry.PATH_CHARACTER
-                        + "/#",
-                CHARACTER);
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+        //Creates the URI matches for latter query.
+        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY, GameDatabaseHelper.GameEntry.PATH_CHARACTER, NAME);
+        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY, GameDatabaseHelper.GameEntry.PATH_CHARACTER + "/#", NAMES);
         return matcher;
     }
 
-    /**
-     * Method called to handle type requests from client applications.
-     * It returns the MIME type of the data associated with each
-     * URI.
-     */
     @Override
     public String getType(@NonNull Uri uri) {
-        // Match the id returned by UriMatcher to return appropriate
-        // MIME_TYPE.
+        // Match the id returned by UriMatcher to return appropriate MIME_TYPE.
         switch (sUriMatcher.match(uri)) {
-            case CHARACTERS:
+            case NAME:
                 return GameDatabaseHelper.GameEntry.CONTENT_ITEMS_TYPE;
-            case CHARACTER:
+            case NAMES:
                 return GameDatabaseHelper.GameEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
 
-    /**
-     * Method called to handle insert requests from client apps.
-     */
     @Override
-    public Uri insert(@NonNull Uri uri,
-                      ContentValues cvs) {
+    public Uri insert(@NonNull Uri uri, ContentValues cvs) {
         Uri returnUri;
 
-        printCharacters("inserting", cvs, uri);
-
-        // Try to match against the path in a url.  It returns the
-        // code for the matched node (added using addURI), or -1 if
-        // there is no matched node.  If there's a match insert a new
-        // row.
+        //Matches URI to path.
         switch (sUriMatcher.match(uri)) {
-            case CHARACTERS:
-                returnUri = insertCharacters(uri, cvs);
+            case NAME:
+                returnUri = insertMultipleRows(uri, cvs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -135,8 +79,7 @@ public class GameContentProvider extends ContentProvider {
         return returnUri;
     }
 
-    private Uri insertCharacters(Uri uri,
-                                 ContentValues cvs) {
+    private Uri insertMultipleRows(Uri uri, ContentValues cvs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
         long id = db.insert(GameDatabaseHelper.TABLE_NAME, null, cvs);
@@ -148,22 +91,13 @@ public class GameContentProvider extends ContentProvider {
             throw new android.database.SQLException("Failed to insert row into " + uri);
     }
 
-    /**
-     * Method that handles bulk insert requests.
-     */
     @Override
     public int bulkInsert(@NonNull Uri uri,
                           ContentValues[] cvsArray) {
 
-        for (ContentValues cvs : cvsArray)
-            printCharacters("bulk inserting", cvs, uri);
-
-        // Try to match against the path in a url.  It returns the
-        // code for the matched node (added using addURI), or -1 if
-        // there is no matched node.  If there's a match bulk insert
-        // new rows.
+        //Matches URI to path.
         switch (sUriMatcher.match(uri)) {
-            case CHARACTERS:
+            case NAME:
                 int returnCount = bulkInsertCharacters(uri, cvsArray);
 
                 if (returnCount > 0)
@@ -176,11 +110,7 @@ public class GameContentProvider extends ContentProvider {
         }
     }
 
-    /**
-     * Method that handles bulk insert requests.
-     */
-    private int bulkInsertCharacters(Uri uri,
-                                     ContentValues[] cvsArray) {
+    private int bulkInsertCharacters(Uri uri, ContentValues[] cvsArray) {
         // Create and/or open a database that will be used for reading
         // and writing. Once opened successfully, the database is
         // cached, so you can call this method every time you need to
@@ -207,10 +137,6 @@ public class GameContentProvider extends ContentProvider {
         return returnCount;
     }
 
-    /**
-     * Method called to handle query requests from client
-     * applications.
-     */
     @Override
     public Cursor query(@NonNull Uri uri,
                         String[] projection,
@@ -222,14 +148,14 @@ public class GameContentProvider extends ContentProvider {
         // Match the id returned by UriMatcher to query appropriate
         // rows.
         switch (sUriMatcher.match(uri)) {
-            case CHARACTERS:
+            case NAME:
                 cursor = queryCharacters(uri,
                         projection,
                         selection,
                         selectionArgs,
                         sortOrder);
                 break;
-            case CHARACTER:
+            case NAMES:
                 cursor = queryCharacter(uri,
                         projection,
                         selection,
@@ -247,15 +173,8 @@ public class GameContentProvider extends ContentProvider {
         return cursor;
     }
 
-    /**
-     * Method called to handle query requests from client
-     * applications.
-     */
-    private Cursor queryCharacters(Uri uri,
-                                   String[] projection,
-                                   String selection,
-                                   String[] selectionArgs,
-                                   String sortOrder) {
+
+    private Cursor queryCharacters(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         // Expand the selection if necessary.
         selection = addSelectionArgs(selection,
                 selectionArgs,
@@ -270,10 +189,6 @@ public class GameContentProvider extends ContentProvider {
                         sortOrder);
     }
 
-    /**
-     * Method called to handle query requests from client
-     * applications.
-     */
     private Cursor queryCharacter(Uri uri,
                                   String[] projection,
                                   String selection,
@@ -292,31 +207,22 @@ public class GameContentProvider extends ContentProvider {
                         sortOrder);
     }
 
-    /**
-     * Method called to handle update requests from client
-     * applications.
-     */
     @Override
-    public int update(@NonNull Uri uri,
-                      ContentValues cvs,
-                      String selection,
-                      String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues cvs, String selection, String[] selectionArgs) {
+
         int returnCount;
 
-        printCharacters("updating", cvs, uri);
-
-        // Try to match against the path in a url.  It returns the
-        // code for the matched node (added using addURI), or -1 if
-        // there is no matched node.  If there's a match update rows.
+        // Match the id returned by UriMatcher to query appropriate
+        // rows.
         switch (sUriMatcher.match(uri)) {
-            case CHARACTERS:
-                returnCount = updateCharacters(uri,
+            case NAME:
+                returnCount = updateName(uri,
                         cvs,
                         selection,
                         selectionArgs);
                 break;
-            case CHARACTER:
-                returnCount =  updateCharacter(uri,
+            case NAMES:
+                returnCount =  updateNames(uri,
                         cvs,
                         selection,
                         selectionArgs);
@@ -332,14 +238,7 @@ public class GameContentProvider extends ContentProvider {
         return returnCount;
     }
 
-    /**
-     * Method called to handle update requests from client
-     * applications.
-     */
-    private int updateCharacters(Uri uri,
-                                 ContentValues cvs,
-                                 String selection,
-                                 String[] selectionArgs) {
+    private int updateName(Uri uri, ContentValues cvs, String selection, String[] selectionArgs) {
         // Expand the selection if necessary.
         selection = addSelectionArgs(selection,
                 selectionArgs,
@@ -351,14 +250,7 @@ public class GameContentProvider extends ContentProvider {
                     selectionArgs);
     }
 
-    /**
-     * Method called to handle update requests from client
-     * applications.
-     */
-    private int updateCharacter(Uri uri,
-                                ContentValues cvs,
-                                String selection,
-                                String[] selectionArgs) {
+    private int updateNames(Uri uri, ContentValues cvs, String selection, String[] selectionArgs) {
         // Expand the selection if necessary.
         selection = addSelectionArgs(selection,
                 selectionArgs,
@@ -372,26 +264,18 @@ public class GameContentProvider extends ContentProvider {
                         selectionArgs);
     }
 
-    /**
-     * Method called to handle delete requests from client
-     * applications.
-     */
     @Override
-    public int delete(@NonNull Uri uri,
-                      String selection,
-                      String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+
         int returnCount;
 
-        printSelectionArgs("deleting", selection, selectionArgs, uri);
-
-        // Try to match against the path in a url.  It returns the
-        // code for the matched node (added using addURI), or -1 if
-        // there is no matched node.  If there's a match delete rows.
+        // Match the id returned by UriMatcher to query appropriate
+        // rows.
         switch (sUriMatcher.match(uri)) {
-            case CHARACTERS:
+            case NAME:
                 returnCount = deleteCharacters(uri, selection, selectionArgs);
                 break;
-            case CHARACTER:
+            case NAMES:
                 returnCount =  deleteCharacter(uri, selection, selectionArgs);
                 break;
             default:
@@ -405,45 +289,19 @@ public class GameContentProvider extends ContentProvider {
         return returnCount;
     }
 
-    /**
-     * Method called to handle delete requests from client
-     * applications.
-     */
-    private int deleteCharacters(Uri uri,
-                                 String selection,
-                                 String[] selectionArgs) {
+    private int deleteCharacters(Uri uri, String selection, String[] selectionArgs) {
         // Expand the selection if necessary.
         selection = addSelectionArgs(selection, selectionArgs, " OR ");
-        return mOpenHelper.getWritableDatabase().delete
-                (GameDatabaseHelper.TABLE_NAME,
-                        selection,
-                        selectionArgs);
+        return mOpenHelper.getWritableDatabase().delete(GameDatabaseHelper.TABLE_NAME, selection, selectionArgs);
     }
 
-    /**
-     * Method called to handle delete requests from client
-     * applications.
-     */
-    private int deleteCharacter(Uri uri,
-                                String selection,
-                                String[] selectionArgs) {
+    private int deleteCharacter(Uri uri, String selection, String[] selectionArgs) {
         // Expand the selection if necessary.
-        selection = addSelectionArgs(selection,
-                selectionArgs,
-                " OR ");
+        selection = addSelectionArgs(selection, selectionArgs, " OR ");
         // Just delete a single row in the database.
-        return mOpenHelper.getWritableDatabase().delete
-                (GameDatabaseHelper.TABLE_NAME,
-                        addKeyIdCheckToWhereStatement(selection,
-                        ContentUris.parseId(uri)),
-                        selectionArgs);
+        return mOpenHelper.getWritableDatabase().delete(GameDatabaseHelper.TABLE_NAME, addKeyIdCheckToWhereStatement(selection, ContentUris.parseId(uri)), selectionArgs);
     }
 
-    /**
-     * Return a selection string that concatenates all the
-     * @a selectionArgs for a given @a selection using the given @a
-     * operation.
-     */
     private String addSelectionArgs(String selection,
                                     String [] selectionArgs,
                                     String operation) {
@@ -455,28 +313,15 @@ public class GameContentProvider extends ContentProvider {
 
             // Properly add the selection args to the selectionResult.
             for (int i = 0; i < selectionArgs.length - 1; ++i)
-                selectionResult += (selection
-                        + " = ? "
-                        + operation
-                        + " ");
+                selectionResult += (selection + " = ? " + operation + " ");
 
             // Handle the final selection case.
-            selectionResult += (selection
-                    + " = ?");
-
-            printSelectionArgs(operation,
-                    selectionResult,
-                    selectionArgs,
-                    null);
+            selectionResult += (selection + " = ?");
 
             return selectionResult;
         }
     }
 
-    /**
-     * Helper method that appends a given key id to the end of the
-     * WHERE statement parameter.
-     */
     private static String addKeyIdCheckToWhereStatement(String whereStatement,
                                                         long id) {
         String newWhereStatement;
@@ -486,52 +331,6 @@ public class GameContentProvider extends ContentProvider {
             newWhereStatement = whereStatement + " AND ";
 
         // Append the key id to the end of the WHERE statement.
-        return newWhereStatement
-                + GameDatabaseHelper.GameEntry._ID
-                + " = '"
-                + id
-                + "'";
-    }
-
-    /**
-     * Print out the characters to logcat.
-     *
-     * @param operation
-     * @param cvs
-     * @param uri
-     */
-    void printCharacters(String operation,
-                         ContentValues cvs,
-                         Uri uri) {
-        Log.d(TAG, operation + " on " + uri);
-        for (String key : cvs.keySet()) {
-            Log.d(TAG, key + " " + cvs.get(key));
-        }
-
-    }
-
-    /**
-     * Printout the selection args to logcat.
-     *
-     * @param operation
-     * @param selectionResult
-     * @param selectionArgs
-     */
-    void printSelectionArgs(String operation,
-                            String selectionResult,
-                            String[] selectionArgs,
-                            Uri uri) {
-        // Output the selectionResults to Logcat.
-        Log.d(TAG,
-                operation
-                        + " on "
-                        + (uri == null ? "null" : uri)
-                        + " selection = "
-                        + selectionResult
-                        + " selectionArgs = ");
-        if (selectionArgs != null && selectionArgs.length > 0)
-            for (String args : selectionArgs)
-                Log.d(TAG,
-                        args + " ");
+        return newWhereStatement + GameDatabaseHelper.GameEntry._ID + " = '" + id + "'";
     }
 }
