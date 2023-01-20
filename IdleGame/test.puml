@@ -1,0 +1,157 @@
+@startuml
+class com.finalproject.idlegame.ActivityFragment {
+- FragmentFirstBinding binding
+- Intent mIntent
+- {static} String TAG
+- {static} String INTENT_MUSIC_PAUSE
+- {static} Double mWaterBottleSellPrice
+- {static} Double mMoneyValue
+- {static} Double mFactoriesValue
+- {static} Double mUpgradesBought
+- {static} Double mFactoryCurrentCost
+- {static} Double mFactoryIncreaseCost
+- {static} Double[] mUpgradePrice
+~ Timer mGameTimer
+- {static} boolean[] mUpgradeBoughtStatus
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void ChangeMoneyText()
++ void ChangeFactoriesText()
++ void startGameTimer()
++ void FactoriesProfit()
++ void onDestroyView()
++ void onDestroy()
++ void onStop()
+}
+class com.finalproject.idlegame.ActivityFragment.GameTimerThread {
++ void run()
+}
+class com.finalproject.idlegame.BackgroundMusicService {
+- {static} float mStartVolume
+- {static} String TAG
+- {static} String RES_LOCALE
+- {static} String MAIN_SONG_NAME
+- {static} String INTENT_MUSIC_PAUSE
+~ MediaPlayer gameMusic
+- BroadcastReceiver mReceiver
++ IBinder onBind(Intent)
++ void onCreate()
++ int onStartCommand(Intent,int,int)
++ void onDestroy()
+- void musicPause()
+}
+class com.finalproject.idlegame.GameContentProvider {
+# {static} String TAG
+- GameDatabaseHelper mOpenHelper
+- Context mContext
++ {static} int NAME
++ {static} int NAMES
+- {static} UriMatcher sUriMatcher
++ boolean onCreate()
+# {static} UriMatcher buildUriMatcher()
++ String getType(Uri)
++ Uri insert(Uri,ContentValues)
+- Uri insertMultipleRows(Uri,ContentValues)
++ int bulkInsert(Uri,ContentValues[])
+- int bulkInsertCharacters(Uri,ContentValues[])
++ Cursor query(Uri,String[],String,String[],String)
+- Cursor queryCharacters(Uri,String[],String,String[],String)
+- Cursor queryCharacter(Uri,String[],String,String[],String)
++ int update(Uri,ContentValues,String,String[])
+- int updateName(Uri,ContentValues,String,String[])
+- int updateNames(Uri,ContentValues,String,String[])
++ int delete(Uri,String,String[])
+- int deleteCharacters(Uri,String,String[])
+- int deleteCharacter(Uri,String,String[])
+- String addSelectionArgs(String,String[],String)
+- {static} String addKeyIdCheckToWhereStatement(String,long)
+}
+class com.finalproject.idlegame.GameContentOps {
+- {static} String TAG
+- MainActivity mActivity
+- Cursor mCursor
+- ContentResolver mContentResolver
++ Uri insertHelper(String,int)
+# Uri insert(Uri,ContentValues)
++ Cursor query(Uri,String[],String,String[],String)
++ int updateValueByName(String,int)
++ int update(Uri,ContentValues,String,String[])
++ boolean areThereValuesInTable(String[])
++ double[] getValueFromTable(String[])
+}
+class com.finalproject.idlegame.MainActivity {
+- AppBarConfiguration appBarConfiguration
+- ActivityMainBinding binding
+- {static} HttpURLConnectionActivity mHttpRequester
+- {static} double mMoneyValue
+- {static} double mFactoriesValue
+- {static} double mFactoriesCurrentCost
+- {static} double mUpgradesBought
+- {static} String[] sAllValuesName
+- {static} String mWaterValueHttp
+- {static} String TAG
+- {static} String URL_WATER_PRICE
+- {static} double[] mGameDataDouble
+- {static} GameContentOps mGameContentOps
+# void onCreate(Bundle)
++ void resetGame()
+- boolean isMyServiceRunning(Class<?>)
++ boolean onCreateOptionsMenu(Menu)
++ boolean onOptionsItemSelected(MenuItem)
++ boolean onSupportNavigateUp()
++ double getMoneyValue()
++ double getFactoriesValue()
++ double getFactoriesCurrentCost()
++ double getUpgradesPrice()
++ double getWaterValueHttp()
++ void saveGameThread(Double,Double,Double)
+- void saveGame(Double,Double,Double)
++ void toastMessages(String)
+}
+class com.finalproject.idlegame.MainActivity.SaveThread {
+- Double mMoneyValue
+- Double mFactoriesValue
+- Double mUpgradesBought
++ void run()
+}
+class com.finalproject.idlegame.HttpURLConnectionActivity {
+- {static} String TAG
+- {static} String REQUEST_METHOD_GET
+- {static} String[] mParsedSegments
++ {static} String startSendHttpRequestThread(String)
+}
+class com.finalproject.idlegame.GameDatabaseHelper {
+- {static} String TAG
++ {static} String CONTENT_AUTHORITY
+- {static} String DATABASE_NAME
++ {static} String TABLE_NAME
+~ String SQL_CREATE_TABLE
+- {static} int DATABASE_VERSION
++ {static} Uri BASE_CONTENT_URI
++ void onCreate(SQLiteDatabase)
++ void onUpgrade(SQLiteDatabase,int,int)
+}
+class com.finalproject.idlegame.GameDatabaseHelper.GameEntry {
++ {static} Uri CONTENT_URI
++ {static} String PATH_NAME
++ {static} String COLUMN_NAME
++ {static} String COLUMN_VALUE
++ {static} String CONTENT_ITEMS_TYPE
++ {static} String CONTENT_ITEM_TYPE
++ {static} String[] sColumnsToDisplay
++ {static} Uri buildUri(Long)
+}
+
+
+androidx.fragment.app.Fragment <|-- com.finalproject.idlegame.ActivityFragment
+com.finalproject.idlegame.ActivityFragment +.. com.finalproject.idlegame.ActivityFragment.GameTimerThread
+com.finalproject.idlegame.TimerTask <|-- com.finalproject.idlegame.ActivityFragment.GameTimerThread
+android.app.Service <|-- com.finalproject.idlegame.BackgroundMusicService
+android.content.ContentProvider <|-- com.finalproject.idlegame.GameContentProvider
+androidx.appcompat.app.AppCompatActivity <|-- com.finalproject.idlegame.MainActivity
+com.finalproject.idlegame.MainActivity +.. com.finalproject.idlegame.MainActivity.SaveThread
+com.finalproject.idlegame.Thread <|-- com.finalproject.idlegame.MainActivity.SaveThread
+android.database.sqlite.SQLiteOpenHelper <|-- com.finalproject.idlegame.GameDatabaseHelper
+com.finalproject.idlegame.GameDatabaseHelper +.. com.finalproject.idlegame.GameDatabaseHelper.GameEntry
+com.finalproject.idlegame.BaseColumns <|.. com.finalproject.idlegame.GameDatabaseHelper.GameEntry
+@enduml
