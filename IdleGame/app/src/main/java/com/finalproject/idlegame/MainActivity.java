@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static HttpURLConnectionActivity mHttpRequester;
 
+    //Saved game data
     private static double mMoneyValue;
     private static double mFactoriesValue;
     private static double mFactoriesCurrentCost;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static String mWaterValueHttp;
 
     private static final String TAG = "MainActivity";
-    private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
+    private static final String URL_WATER_PRICE = "https://www.globalproductprices.com/USA/mineral_water_prices/#";
 
     private static double[] mGameDataDouble;
 
@@ -52,28 +53,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Layout functions that came with the project
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         setSupportActionBar(binding.toolbar);
-
-        mHttpRequester = new HttpURLConnectionActivity();
-
-        mWaterValueHttp = HttpURLConnectionActivity.startSendHttpRequestThread("https://www.globalproductprices.com/USA/mineral_water_prices/#").split("<")[0];
-
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
+        //Requests the value of a water bottle in dollars and parses the string to get value
+        mHttpRequester = new HttpURLConnectionActivity();
+        mWaterValueHttp = HttpURLConnectionActivity.startSendHttpRequestThread(URL_WATER_PRICE).split("<")[0];
+
+        //SQLite table creation
         mGameContentOps = new GameContentOps(this);
 
-        //This checks if there is data already, if there is this part is ignored.
+        //This checks if there is data already, if so it will not create a new game.
         try {
             if(!mGameContentOps.areThereValuesInTable(sAllValuesName)){
                 Log.d(TAG, "New game detected.");
-                mGameContentOps.insertHelper("money", 0);
-                mGameContentOps.insertHelper("factories", 0);
-                mGameContentOps.insertHelper("bought_upgrades", 0);
+                mGameContentOps.insertHelper(sAllValuesName[0], 0);
+                mGameContentOps.insertHelper(sAllValuesName[1], 0);
+                mGameContentOps.insertHelper(sAllValuesName[3], 0);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -86,10 +87,13 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        //Sets the values for the game
         mMoneyValue = mGameDataDouble[0]/100;
         mFactoriesValue = mGameDataDouble[1];
         mFactoriesCurrentCost = mFactoriesValue*10 + 10;
         mUpgradesBought = mGameDataDouble[2];
+
+        //Only for debugging
         for (double aux: mGameDataDouble) {
             Log.d(TAG, "double: " + aux);
         }
@@ -100,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
         saveGameThread(0.0, 0.0, 0.0);
     }
 
-    // This checks if a service is running, one method is deprecated but still works for local services.
+    //This checks if a service is running, one method is deprecated but still works for local services.
+    //This function is for debugging purposes only.
     @SuppressWarnings("deprecation")
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
@@ -126,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -160,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         return Double.parseDouble(mWaterValueHttp);
     }
 
+    //Saving is slow so I created a thread to make it faster.
     class SaveThread extends Thread{
         private Double mMoneyValue;
         private Double mFactoriesValue;
@@ -177,23 +182,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Call this to save the game.
     public void saveGameThread(Double moneyValue, Double factoriesValue, Double upgradesBought){
         Toast.makeText(this, "Saving...", Toast.LENGTH_SHORT).show();
         SaveThread save = new SaveThread(moneyValue, factoriesValue, upgradesBought);
         new Thread(save).start();
         //This is waiting for the thread to finish
+        //noinspection StatementWithEmptyBody
         while(save.isAlive()){
             //waiting...
         }
         Toast.makeText(this, "Game saved", Toast.LENGTH_SHORT).show();
     }
 
+    //This method is used to access the table and save new data.
     private void saveGame(Double moneyValue, Double factoriesValue, Double upgradesBought){
         moneyValue *= 100;
         try {
-            mGameContentOps.updateValueByName("money", moneyValue.intValue());
-            mGameContentOps.updateValueByName("factories", factoriesValue.intValue());
-            mGameContentOps.updateValueByName("bought_upgrades", upgradesBought.intValue());
+            mGameContentOps.updateValueByName(sAllValuesName[0], moneyValue.intValue());
+            mGameContentOps.updateValueByName(sAllValuesName[1], factoriesValue.intValue());
+            mGameContentOps.updateValueByName(sAllValuesName[2], upgradesBought.intValue());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
