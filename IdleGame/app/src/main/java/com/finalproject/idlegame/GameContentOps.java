@@ -3,136 +3,55 @@ package com.finalproject.idlegame;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Handler;
+
 import android.os.RemoteException;
 import android.util.Log;
 
-
 /**
- * Support class that consolidates and simplifies operations on the
- * HobbitContentProvider.
+ * Uses the gitlab project https://gitlab.com/vandy-aad-3/HobbitContentProvider from Vanderbilt University
+ * as the base and was changed to better accommodate this project.
  */
+
 public class GameContentOps {
 
     private final static String TAG = "GameContentOps";
-    /**
-     * Reference back to the HobbitActivity.
-     */
+
     private final MainActivity mActivity;
 
-    /**
-     * Contains the most recent result from a query so the display can
-     * be updated after a runtime configuration change.
-     */
     private Cursor mCursor;
 
-    /**
-     * Define the Proxy for accessing the HobbitContentProvider.
-     */
-    private ContentResolver mCr;
+    private ContentResolver mContentResolver;
 
-    /**
-     * All the races in our program.
-     */
-    private static String[] sAllRaces = new String[]{
-            "Dwarf",
-            "Maia",
-            "Hobbit",
-            "Dragon",
-            "Human",
-            "Bear"
-    };
-
-    /**
-     * Constructor initializes the fields.
-     */
     public GameContentOps(MainActivity activity) {
         mActivity = activity;
-        mCr = mActivity.getContentResolver();
+        mContentResolver = mActivity.getContentResolver();
     }
 
-    /**
-     * Insert a Hobbit @a character of a particular @a race into
-     * the HobbitContentProvider.
-     */
-    public Uri insertHelper(String dataName,
-                      int value) throws RemoteException {
+    public Uri insertHelper(String dataName, int value) throws RemoteException {
         final ContentValues cvs = new ContentValues();
 
         // Insert data.
-        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME,
-                dataName);
-        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE,
-                value);
+        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME, dataName);
+        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE, value);
 
         // Insert the content at the designated URI.
-        return insert(GameDatabaseHelper.GameEntry.CONTENT_URI,
-                cvs);
+        return insert(GameDatabaseHelper.GameEntry.CONTENT_URI, cvs);
     }
 
-    /**
-     * Insert @a ContentValues into the HobbitContentProvider at
-     * the @a uri.
-     */
+    //Called to insert data into table from various helper functions.
     protected Uri insert(Uri uri, ContentValues cvs) {
-        return mCr.insert(uri, cvs);
+        return mContentResolver.insert(uri, cvs);
     }
 
-    /**
-     * Insert an array of Hobbit @a characters of a particular @a
-     * race into the HobbitContentProvider.
-     */
-    public int bulkInsert(String[] characters,
-                          String race) throws RemoteException {
-        // Use ContentValues to store the values in appropriate
-        // columns, so that ContentResolver can process it.  Since
-        // more than one rows needs to be inserted, an Array of
-        // ContentValues is needed.
-        ContentValues[] cvsArray =
-                new ContentValues[characters.length];
-
-        // Index counter.
-        int i = 0;
-
-        // Insert all the characters into the ContentValues array.
-        for (String character : characters) {
-            ContentValues cvs = new ContentValues();
-            cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME,
-                    character);
-            cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE,
-                    race);
-            cvsArray[i++] = cvs;
-        }
-
-        // Insert the array of content at the designated URI.
-        return bulkInsert
-                (GameDatabaseHelper.GameEntry.CONTENT_URI,
-                        cvsArray);
-    }
-
-    /**
-     * Insert an array of @a ContentValues into the
-     * HobbitContentProvider at the @a uri.
-     */
-    protected int bulkInsert(Uri uri,
-                             ContentValues[] cvsArray) {
-        return mCr.bulkInsert(uri,
-                cvsArray);
-    }
-
-    /**
-     * Return a Cursor from a query on the HobbitContentProvider at
-     * the @a uri.
-     */
+    //Query for the cursor to find the data
     public Cursor query(Uri uri,
                         String[] projection,
                         String selection,
                         String[] selectionArgs,
                         String sortOrder) {
-        return mCr.query(uri,
+        return mContentResolver.query(uri,
                 projection,
                 selection,
                 selectionArgs,
@@ -140,104 +59,31 @@ public class GameContentOps {
 
     }
 
-    /**
-     * Update the @a name and @a race of a Hobbit character at a
-     * designated @a uri from the HobbitContentProvider.
-     */
-    public int updateByUri(Uri uri,
-                           String name,
-                           int value) throws RemoteException {
+    //Updates the value by the name. Ex: giving money as the argument
+    //will let the method know you want to update the value column that
+    //is in the same row.
+    public int updateValueByName(String name,
+                                int value) throws RemoteException {
         // Initialize the content values.
         final ContentValues cvs = new ContentValues();
         cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME, name);
         cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE, value);
 
         // Update the content at the designated URI.
-        return update(uri,
-                cvs,
-                null,
-                null);
+        return update(GameDatabaseHelper.GameEntry.CONTENT_URI, cvs, GameDatabaseHelper.GameEntry.COLUMN_NAME, new String[]{name});
     }
 
-    /**
-     * Update the @a race of a Hobbit character with a given
-     *
-     * @a name in the HobbitContentProvider.
-     */
-    public int updateValueByName(String name,
-                                int value) throws RemoteException {
-        // Initialize the content values.
-        final ContentValues cvs = new ContentValues();
-        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_NAME,
-                name);
-        cvs.put(GameDatabaseHelper.GameEntry.COLUMN_VALUE,
-                value);
-
-        // Update the content at the designated URI.
-        return update(GameDatabaseHelper.GameEntry.CONTENT_URI,
-                cvs,
-                GameDatabaseHelper.GameEntry.COLUMN_NAME,
-                new String[]{name});
-    }
-
-    /**
-     * Update the @a selection and @a selectionArgs with the @a
-     * ContentValues in the HobbitContentProvider at the @a uri.
-     */
+    //Update function called by helper update methods
     public int update(Uri uri,
                       ContentValues cvs,
                       String selection,
                       String[] selectionArgs) {
 
 
-        return mCr.update(uri,
-                cvs,
-                selection,
-                selectionArgs);
+        return mContentResolver.update(uri, cvs, selection, selectionArgs);
     }
 
-    /**
-     * Delete an array of Hobbit @a characterNames from the
-     * HobbitContentProvider.
-     */
-    public int deleteByName(String[] characterNames)
-            throws RemoteException {
-        return delete(GameDatabaseHelper.GameEntry.CONTENT_URI,
-                GameDatabaseHelper.GameEntry.COLUMN_NAME,
-                characterNames);
-    }
-
-    /**
-     * Delete an array of Hobbit @a characterRaces from the
-     * HobbitContentProvider.
-     */
-    public int deleteByRace(String[] characterRaces)
-            throws RemoteException {
-        return delete(GameDatabaseHelper.GameEntry.CONTENT_URI,
-                GameDatabaseHelper.GameEntry.COLUMN_VALUE,
-                characterRaces);
-    }
-
-    /**
-     * Delete the @a selection and @a selectionArgs from the
-     * HobbitContentProvider at the @a uri.
-     */
-    protected int delete(Uri uri,
-                         String selection,
-                         String[] selectionArgs) {
-        return mCr.delete(uri, selection, selectionArgs);
-    }
-
-    /**
-     * Delete all characters from the HobbitContentProvider.
-     */
-    public int deleteAll()
-            throws RemoteException {
-        return delete(GameDatabaseHelper.GameEntry.CONTENT_URI,
-                null,
-                null);
-    }
-
+    //Used to see if it is a new game.
     public boolean areThereValuesInTable(String[] nameOfValues) throws RemoteException{
         // Query for all characters in the HobbitContentProvider by their race.
         mCursor = query(GameDatabaseHelper.GameEntry.CONTENT_URI,
@@ -255,6 +101,7 @@ public class GameContentOps {
         return false;
     }
 
+    //Gathers data from table to restart game where it was left of after saving.
     public double[] getValueFromTable(String[] nameOfValues) throws RemoteException {
         // Query for all characters in the HobbitContentProvider by their race.
         mCursor = query(GameDatabaseHelper.GameEntry.CONTENT_URI,

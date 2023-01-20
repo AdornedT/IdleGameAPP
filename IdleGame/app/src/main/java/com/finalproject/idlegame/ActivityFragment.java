@@ -29,7 +29,7 @@ public class ActivityFragment extends Fragment {
     private static Double mFactoryCurrentCost = 10.0;
     private static Double mFactoryIncreaseCost = 10.0;
 
-    private static final Double[] mUpgradePrice = {20.0, 40.0, 80.0, 160.0};
+    private static final Double[] mUpgradePrice = {200.0, 400.0, 800.0, 1600.0};
 
     Timer mGameTimer = new Timer();
 
