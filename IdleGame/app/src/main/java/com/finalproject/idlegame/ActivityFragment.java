@@ -14,13 +14,12 @@ import androidx.fragment.app.Fragment;
 import com.finalproject.idlegame.databinding.FragmentFirstBinding;;import java.util.Timer;
 import java.util.TimerTask;
 
-public class FirstFragment extends Fragment {
+public class ActivityFragment extends Fragment {
 
     private FragmentFirstBinding binding;
     private Intent mIntent;
-    private static GameContentOps mGameContentOps;
 
-    private static final String TAG = "FirstFragment";
+    private static final String TAG = "ActivityFragment";
     private static final String INTENT_MUSIC_PAUSE = "com.finalproject.idlegame.BackgroundMusicService.PAUSE";
 
     private static Double mWaterBottleSellPrice = 1.0;
@@ -226,7 +225,7 @@ public class FirstFragment extends Fragment {
                         " current factory cost: " +mFactoryCurrentCost+ " Upgrades bought status " +mUpgradesBought+
                         " water bottle price: " +mWaterBottleSellPrice);
 
-                //Starts game timer to loop every 1 second, used for the factories.
+                //Starts game timer to loop every 1 second, used for the factories
                 startGameTimer();
 
                 //Mountain water upgrade status
@@ -417,6 +416,7 @@ public class FirstFragment extends Fragment {
         factories_num_upgrade_txt.setText(mFactoriesValue.toString());
     }
 
+    //Timer thread for profit earnings from factories
     class GameTimerThread extends TimerTask {
 
         @Override
@@ -431,10 +431,12 @@ public class FirstFragment extends Fragment {
         }
     };
 
+    //Starts game timer
     public void startGameTimer(){
         mGameTimer.schedule(new GameTimerThread(), 0,1000);
     }
 
+    //Called every 1 second
     public void FactoriesProfit(){
         mMoneyValue += mWaterBottleSellPrice*mFactoriesValue;
         ChangeMoneyText();
