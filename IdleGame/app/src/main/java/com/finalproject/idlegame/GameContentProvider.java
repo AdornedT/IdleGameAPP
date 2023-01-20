@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -43,8 +42,8 @@ public class GameContentProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         //Creates the URI matches for latter query.
-        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY, GameDatabaseHelper.GameEntry.PATH_CHARACTER, NAME);
-        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY, GameDatabaseHelper.GameEntry.PATH_CHARACTER + "/#", NAMES);
+        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY, GameDatabaseHelper.GameEntry.PATH_NAME, NAME);
+        matcher.addURI(GameDatabaseHelper.CONTENT_AUTHORITY, GameDatabaseHelper.GameEntry.PATH_NAME + "/#", NAMES);
         return matcher;
     }
 
