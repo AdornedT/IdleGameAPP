@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "New game detected.");
                 mGameContentOps.insertHelper(sAllValuesName[0], 0);
                 mGameContentOps.insertHelper(sAllValuesName[1], 0);
-                mGameContentOps.insertHelper(sAllValuesName[3], 0);
+                mGameContentOps.insertHelper(sAllValuesName[2], 0);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
