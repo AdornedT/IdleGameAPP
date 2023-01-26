@@ -23,9 +23,6 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
-
-    private static HttpURLConnectionActivity mHttpRequester;
 
     //Saved game data
     private static double mMoneyValue;
@@ -48,13 +45,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static GameContentOps mGameContentOps;
 
-    @SuppressLint("Range")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //Layout functions that came with the project
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.finalproject.idlegame.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -62,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         //Requests the value of a water bottle in dollars and parses the string to get value
-        mHttpRequester = new HttpURLConnectionActivity();
         mWaterValueHttp = HttpURLConnectionActivity.startSendHttpRequestThread(URL_WATER_PRICE).split("<")[0];
 
         //SQLite table creation
@@ -107,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     //This checks if a service is running, one method is deprecated but still works for local services.
     //This function is for debugging purposes only.
     @SuppressWarnings("deprecation")
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
+    public boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(this.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
