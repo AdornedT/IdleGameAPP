@@ -10,7 +10,7 @@ This app will be an idle game where the objective is to make as much money as po
 
 ### Activity
 
-It will start the main game screen immediatly, so no main menu screen because I find that makes the game more dynamic. The idea is that the game will automatically load your local save and resume from where you were.
+The MainActivity will start the screen with a "Start" button, after pressing it the game will load old data or create new data depending if it is your first game.
 
 A separete menu will be created for upgrades and to purchase water bottle factories.
 
