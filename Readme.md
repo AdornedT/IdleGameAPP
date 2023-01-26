@@ -43,4 +43,23 @@ This uses the java.net.HttpURLConnection import.
 As can be seen the UI is simple, there are only two screens one for the main game loop where you can collect money, by cicking "Bottle Water", and see your stats. The second screen is where you can purchase upgrades that increase the value of your bottled water. In both screens you can purchase factories.
 
 ### Class Diagram
-![class diagram](https://github.com/AdornedT/IdleGameAPP/blob/master/game_wire_frame.png)
+
+The image is pretty big to show here, look for the class_diagram.png file.
+
+I will give a simple and brief overview of everything so as not to bore people.
+
+The MainActivity starts the whole thing by collecting any data from an old save or creating new data if it is your first game.
+
+The ActivityFragment handles all screen assets, since it was not part of the course I did not bother to make this really optimized or pretty only functional, there you can see that it can start a thread for the game timer thus handling the factories profits, sends the intent for pausing the music and starts the music service.
+
+The Backgroundmusic is the code that starts the music for the game, it is a sticky background service and if the player does not pause the music before stopping the game it will continue THIS IS BY DESIGN.
+
+The HttpURLConnectionActivity has the code for the http request, it basically goes to a site and collects the page elements and stores the line with the price of the water bottle in a string, this value is used in game, which is then treated at the MainActivity.
+
+For the ContentProvider we have to look at three separate java files, GameContentOps, GameContentProvider and GameDatabaseHelper. Starting with the GameContentOps is the simplest, it basically has some helper functions for easier acess to the SQLite table, having methods for querying, updating and inserting data. Second we have the GameDataBaseHelper, which helps us make a table so that we can store our data, the table has two columns name and value being that what is necessary for all data used for saving the game. Last we have the GameContentProvider, this is the java code that initializes the cursor and handles the data we need to collect and store.
+
+So what we have in total is
+  - Activities
+  - A BroadcastReceiver
+  - A started Service 
+  - A ContentProvider
